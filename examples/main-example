@@ -1,0 +1,78 @@
+import * as core from '@actions/core'
+import * as github from '@actions/github'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
+
+//interface Inputs {
+//  orga_id: string;
+//  type: string;
+//  region: string;
+//}
+
+//interface Variables {
+//  repoName: string;
+//  prNumber: number;
+//}
+
+async function deployApp() {
+  const orgaId = core.getInput('orga_id', { required: true })
+  const cleverToken = process.env.CLEVER_TOKEN
+  const cleverSecret = process.env.CLEVER_SECRET
+  const repoName = github.context.payload.repository?.name
+  const prNumber = github.context.payload.pull_request?.number
+
+  const appName = `${repoName}-PR-${prNumber}`
+  const alias = appName
+  const type = core.getInput('type', { required: true })
+  const region = core.getInput('region', { required: true })
+
+  await execAsync(
+    `clever login --token "${cleverToken}" --secret "${cleverSecret}"`
+  )
+  await execAsync(
+    `clever create --type "${type}" "${appName}" --alias "${alias}" --region "${region}" --org "${orgaId}"`
+  )
+  await execAsync(`clever domain add ${appName}.cleverapps.io`)
+  await execAsync('clever deploy')
+  await execAsync(`clever env set VARIABLE_NAME "variable_value"`)
+
+  core.setOutput('deployment_url', `https://${appName}.cleverapps.io`)
+}
+
+async function deleteApp() {
+  const orgaId = core.getInput('orga_id', { required: true })
+  const repoName = github.context.payload.repository.name
+  const prNumber = github.context.payload.pull_request.number
+  const appName = `${repoName}-PR-${prNumber}`
+
+  await execAsync(`clever link -o "${orgaId}" "${appName}"`)
+  await execAsync(`clever delete --alias "${appName}" --yes`)
+}
+
+async function run() {
+  try {
+    if (
+      github.context.eventName === 'pull_request' &&
+      ['opened', 'reopened', 'synchronize'].includes(
+        github.context.payload.action
+      )
+    ) {
+      await deployApp()
+    } else if (
+      github.context.eventName === 'pull_request' &&
+      github.context.payload.action === 'closed'
+    ) {
+      await deleteApp()
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    } else {
+      core.setFailed('An unknown error occurred')
+    }
+  }
+}
+
+run()
