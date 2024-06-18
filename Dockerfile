@@ -26,4 +26,4 @@ COPY --from=builder /action/package.json /action/package.json
 COPY --from=builder /action/node_modules /action/node_modules
 COPY --from=builder /action/dist /action/dist
 
-CMD ["node", "/action/dist/main.js"]
+CMD ["node", "/action/dist/main.mjs"]
