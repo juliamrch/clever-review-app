@@ -11,11 +11,11 @@ RUN npm install
 # Copy the source code and build the project
 COPY src ./src
 COPY tsconfig.json ./
-RUN npm build
+RUN npm run build
 
 # Remove development dependencies
 RUN rm -rf node_modules
-RUN npm install --frozen-lockfile --prod
+RUN npm install
 
 FROM node:20-slim AS final
 
