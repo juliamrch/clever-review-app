@@ -1,4 +1,4 @@
-name: 'The name of your action here'
+name: 'Clever Review App'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 
@@ -20,5 +20,5 @@ outputs:
     description: 'Your output description here'
 
 runs:
-  using: node20
-  main: dist/index.js
+  using: 'docker'
+  image: 'Dockerfile'
