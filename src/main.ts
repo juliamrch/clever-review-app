@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import { getExecOutput } from '@actions/exec'
+import path from 'node:path';
 //import { wait } from './wait'
 
 /**
@@ -9,9 +10,8 @@ import { getExecOutput } from '@actions/exec'
 export async function run(): Promise<void> {
   try {
     const test: string = core.getInput('test')
-    const { stdout } = await getExecOutput('"../node_modules/.bin/clever"', [
-      test
-    ])
+    const cleverPath = path.join(__dirname, '..', 'node_modules', '.bin', 'clever');
+    const { stdout } = await getExecOutput(cleverPath, [test])
 
     core.debug(`Command Output: ${stdout}`)
 
