@@ -21,4 +21,4 @@ outputs:
 
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'src/Dockerfile'
