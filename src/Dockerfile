@@ -11,4 +11,4 @@
    COPY . .
 
    # Run the action
-   CMD ["node", "/usr/src/app/src/main.ts"]
+   CMD ["node", "src/main.ts"]
