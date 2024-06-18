@@ -3,19 +3,19 @@ FROM node:20-slim AS builder
 WORKDIR /action
 
 # Copy only the package.json and lock file to leverage Docker cache
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
 RUN corepack enable
-RUN pnpm install
+RUN npm install
 
 # Copy the source code and build the project
 COPY src ./src
 COPY tsconfig.json ./
-RUN pnpm build
+RUN npm build
 
 # Remove development dependencies
 RUN rm -rf node_modules
-RUN pnpm install --frozen-lockfile --prod
+RUN npm install --frozen-lockfile --prod
 
 FROM node:20-slim AS final
 
